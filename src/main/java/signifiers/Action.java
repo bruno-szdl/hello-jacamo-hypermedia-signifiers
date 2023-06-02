@@ -6,11 +6,15 @@ import jason.asSyntax.Term;
 public class Action {
     Term name;
     Term resource;
+    Term namespace;
+    Term schema;
 
     /* Constructor */
-    public Action(Term name, Term resource){
+    public Action(Term name, Term resource, Term namespace, Term schema){
         this.name = name;
         this.resource = resource;
+        this.namespace = namespace;
+        this.schema = schema;
     }
 
     /* Sets */
@@ -22,6 +26,14 @@ public class Action {
         resource = newResource;
     }
 
+    public void setNamespace(Term newNamespace){
+        namespace = newNamespace;
+    }
+
+    public void setSchema(Term newSchema){
+        schema = newSchema;
+    }
+
     /* Gets */
     public Term getName(){
         return name;
@@ -29,6 +41,14 @@ public class Action {
 
     public Term getResource(){
         return resource;
+    }
+
+    public Term getNamespace(){
+        return namespace;
+    }
+
+    public Term getSchema(){
+        return schema;
     }
 
     /* Equals */
@@ -44,17 +64,17 @@ public class Action {
 
         Action other = (Action) obj;
 
-        return name.equals(other.name) && resource.equals(other.resource);
+        return name.equals(other.name) && resource.equals(other.resource) && namespace.equals(other.namespace) && schema.equals(other.schema);
         // return name.equals(other.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, resource);
+        return Objects.hash(name, resource, namespace, schema);
     }
 
     @Override
     public String toString() {
-        return resource.toString() + "." + name.toString();
+        return resource.toString() + "." + name.toString() + "(" + namespace.toString() + ", " + schema.toString() + ")";
     }
 }

@@ -13,12 +13,8 @@
 */
 
 mas hello_jacamo_hypermedia {
-  // agent alice: hyper_operator_agent_v1.asl
-  // agent bob: hyper_operator_agent_v2.asl
-  // agent carl: hyper_operator_agent_v3.asl {
-  //   ag-class: signifiers.SignifierResolutionMechanism
-  // }
-  agent david: hyper_operator_agent_v4.asl {
+  agent alice: hyper_operator_agent_signifier.asl {
     ag-class: signifiers.SignifierResolutionMechanism
+    ag-arch: signifiers.SignifierResolutionMechanismArch
   }
 }
