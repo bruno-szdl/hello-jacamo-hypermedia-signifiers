@@ -32,7 +32,7 @@ dependencies {
     //implementation group: 'com.github.Interactions-HSG', name: 'jacamo-hypermedia', version: 'befc6bd'
     implementation group: 'com.github.bruno-szdl', name: 'jacamo-hypermedia', version: 'b4aa667'
     implementation group: 'com.github.bruno-szdl', name: 'MasOntology', version: '425db4c'
-    implementation group: 'com.github.bruno-szdl', name: 'hmas-java', version: 'e3d2287'
+    implementation group: 'com.github.bruno-szdl', name: 'hmas-java', version: '99bbd46'
 }
 
 sourceSets {

@@ -1,0 +1,96 @@
+// get bb
+// []
+
+package signifiers;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+
+import jason.architecture.AgArch;
+import jason.asSemantics.ActionExec;
+import jason.asSemantics.Agent;
+import jason.asSemantics.Option;
+import jason.asSyntax.ASSyntax;
+import jason.asSyntax.Literal;
+import jason.asSyntax.Plan;
+import jason.asSyntax.PlanBody;
+import jason.asSyntax.PredicateIndicator;
+import jason.asSyntax.PlanBody.BodyType;
+import jason.asSyntax.Term;
+
+// ToDO: CHange the name of the class
+public class SignifierResolutionMechanismArch extends AgArch {
+
+    // @Override
+    // public Collection<Literal> perceive() {
+    //     // TODO Auto-generated method stub
+    //     return super.perceive();
+    // }
+
+    public List<Action> get_exposed_actions() {
+
+        PredicateIndicator predicate_indicator = new PredicateIndicator("hasAction", 4);
+
+        Iterator<Literal> candidate_beliefs = getBB().getCandidateBeliefs(predicate_indicator);
+
+        List<Action> exposed_actions = new ArrayList<Action>();
+
+        if(candidate_beliefs == null){
+            return exposed_actions;
+        }
+
+        while (candidate_beliefs.hasNext()){
+            Literal candidate_belief = candidate_beliefs.next();
+
+            Term action_name = candidate_belief.getTerm(0);
+            Term action_namespace = candidate_belief.getTerm(2);
+            Term action_schema = candidate_belief.getTerm(3);
+            Term action_resource = candidate_belief.getTerm(4);
+
+            exposed_actions.add(new Action(action_name, action_namespace, action_schema, action_resource));
+        }
+
+        return exposed_actions;
+    }
+
+    @Override
+    public void act(ActionExec action) {
+
+        List<Action> exposed_actions = get_exposed_actions();
+
+        for (Action exposed_action: exposed_actions){
+            if (exposed_action.name.equals(action.getActionTerm().getFunctor())){
+                getTS().getC().removePendingAction(action.getIntention().getId());
+
+                Term action_name = exposed_action.getName();
+                Term action_namespace = exposed_action.getNamespace();
+                Term action_schema = exposed_action.getSchema();
+                Term action_resource = exposed_action.getResource();
+
+                ActionExec newAction = new ActionExec( // create a new action to be executed
+                        ASSyntax.createLiteral("invokeAction", action_name, action_namespace, action_schema),
+                        action.getIntention() // same intention
+                );
+                getTS().getC().addPendingAction(newAction);
+                super.act(newAction);
+            } else {
+                super.act(action);
+            }
+        }
+
+        if(exposed_actions.contains(action.getActionTerm().getFunctor())){
+            getTS().getC().removePendingAction(action.getIntention().getId());
+
+            ActionExec newAction = new ActionExec( // create a new action to be executed
+                    ASSyntax.createLiteral("invokeAction", action.get), // with name "inc"
+                    action.getIntention() // same intention
+            );
+            getTS().getC().addPendingAction(newAction);
+            super.act(newAction);
+        } else {
+            super.act(action);
+        }
+    }
+}

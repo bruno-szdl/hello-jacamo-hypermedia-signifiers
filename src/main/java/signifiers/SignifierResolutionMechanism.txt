@@ -1,0 +1,120 @@
+package signifiers;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import jason.asSemantics.Agent;
+import jason.asSemantics.Option;
+import jason.asSyntax.Literal;
+import jason.asSyntax.Plan;
+import jason.asSyntax.PlanBody;
+import jason.asSyntax.PredicateIndicator;
+import jason.asSyntax.PlanBody.BodyType;
+import jason.asSyntax.Term;
+
+// ToDO: CHange the name of the class
+public class SignifierResolutionMechanism extends Agent {
+
+
+
+
+    public List<Action> get_exposed_actions() {
+
+        PredicateIndicator predicate_indicator = new PredicateIndicator("hasAction", 4);
+
+        Iterator<Literal> candidate_beliefs = getBB().getCandidateBeliefs(predicate_indicator);
+
+        List<Action> exposed_actions = new ArrayList<Action>();
+
+        if(candidate_beliefs == null){
+            return exposed_actions;
+        }
+
+        while (candidate_beliefs.hasNext()){
+            Literal candidate_belief = candidate_beliefs.next();
+
+            Term action_name = candidate_belief.getTerm(0);
+            Term action_namespace = candidate_belief.getTerm(2);
+            Term action_schema = candidate_belief.getTerm(3);
+            Term action_resource = candidate_belief.getTerm(4);
+
+            exposed_actions.add(new Action(action_name, action_namespace, action_schema, action_resource));
+        }
+
+        return exposed_actions;
+    }
+
+    public List<Action> getPlanActions(Option option){
+
+        Plan plan = option.getPlan();
+
+        List<Action> plan_actions_list = new ArrayList<Action>();
+
+        PlanBody plan_body = plan.getBody();
+
+        while(plan_body != null){
+
+            if(plan_body.getBodyType() == BodyType.action){
+
+                Literal body_term = (Literal)plan_body.getBodyTerm();
+
+                if(body_term.getFunctor().equals("invokeAction")){
+                    Term action_resource = body_term.getAnnot("artifact_name").getTerm(0);
+                    if(option.getUnifier().get(action_resource.toString()) != null){
+                        action_resource = option.getUnifier().get(action_resource.toString());
+                    }
+                    Term action_name = body_term.getTerm(0);
+
+                    plan_actions_list.add(new Action(action_name, action_resource));
+                }
+
+            }
+
+            plan_body = plan_body.getBodyNext();
+
+        }
+
+        return plan_actions_list;
+    }
+
+    @Override
+    public Option selectOption(List<Option> options) {
+
+        if (options != null && !options.isEmpty()) {
+
+            List<Action> exposed_actions = get_exposed_actions();
+            System.out.println("\nExposed actions: "+exposed_actions);
+            /* blackbox that performs ontology alignment */
+
+            for (Option option: options) {
+
+
+                boolean is_applicable = true;
+
+                List<Action> list_of_actions = getPlanActions(option);
+                System.out.println("\nList of action for " + option.getPlan().getLabel() +": " + list_of_actions);
+
+
+                for (Action action: list_of_actions){
+                    if (exposed_actions.contains(action)){
+                        continue;
+                    }
+                    else {
+                        is_applicable = false;
+                        break;
+                    }
+                }
+
+                if (is_applicable){
+                    return option;
+                }
+            }
+        }
+
+        return null;
+        // else {
+        //     return null;
+        // }
+    }
+
+}

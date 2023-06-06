@@ -14,7 +14,7 @@
 
 mas hello_jacamo_hypermedia {
   agent alice: hyper_operator_agent_signifier.asl {
-    ag-class: signifiers.SignifierResolutionMechanism
-    ag-arch: signifiers.SignifierResolutionMechanismArch
+    //ag-class: signifiers.SignifierResolutionMechanism
+    //ag-arch: signifiers.SignifierResolutionMechanismArch
   }
 }
